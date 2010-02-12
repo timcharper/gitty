@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# 'git trash' does the same thing as 'git reset --hard' or 'git checkout ./',
+# except rather than completely vaporizing the changes, it stores them in an
+# unreachable stash object.  This means you can save yourself from accidents
+# without having to grep the filesystem.
+#
+# trashed changes can be found using 'git fsck' with relative ease.
+#
+# 'git prune' will delete your trashed changes. 'git gc' will delete your
+# trashed changes older than gc.pruneExpire (which defaults to 2 weeks
+# according to the git-gc man page).
+
+current_stash=$(git rev-parse stash@{0})
+if [ "$1" == "-a" ]; then
+  git add .
+fi
+
+result=$(git stash save 'trashed changes' 2>&1)
+saved_stash=$(git rev-parse stash@{0})
+if [ ! "$current_stash" == "$saved_stash" ]; then
+  result=$(git stash drop 2>&1)
+  echo "Changes were trashed. Type 'git stash apply $saved_stash to bring them back"
+else
+  echo "Trash failed. 'git stash' reported: $result" 1>&2
+fi

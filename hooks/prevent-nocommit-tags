@@ -1,0 +1,5 @@
+if git diff --cached | grep NOCOMMIT > /dev/null; then
+  echo "You tried to commit a line containing NOCOMMIT"
+  exit 1
+fi
+exit 0

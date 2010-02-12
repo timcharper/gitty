@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+
+# Description:
+#   A git hook that automatically updates your submodules for you when you change branches or pull
+#   
+#   It works like this:
+#   - If before you changed branches, your submodule's revision differed from what the master repo specified, your submodule is left alone
+#   - If a submodule has been removed from the branch you move to, it alerts you
+#   - If a submodule has been added on the branch you move to, it alerts you
+#   - Otherwise, it checks out the revision for you
+
+module GitMethods
+  def chdir_parent
+    Dir.chdir('..') until File.directory?('.git') || Dir.pwd == '/'
+  end
+
+  def list_submodules(ref)
+    `git ls-tree --full-tree -r #{ref} | egrep '^160000'`.split("\n").inject({}) do |h, line|
+      info, path = line.split("\t")
+      filemode, object_type, ref = info.split(" ")
+      h[path] = ref
+      h
+    end
+  end
+
+  def submodule_current_rev(path)
+    return nil unless File.directory?(path)
+    ref = nil
+    Dir.chdir(path) do
+      ref = `git rev-parse HEAD`.chomp
+    end
+    ref
+  end
+
+  def output_submodule_header(path)
+    puts "\nSubmodule: #{path}\n#{'-' * 60}"
+  end
+end
+include GitMethods
+
+chdir_parent
+current_submodules = list_submodules('HEAD')
+previous_submodules = list_submodules('HEAD@{1}')
+
+(current_submodules.keys + previous_submodules.keys).uniq.sort.each do |path|
+  rev = submodule_current_rev(path)
+  case
+  when rev.nil?
+    output_submodule_header(path)
+    # it should be initialized / unstashed
+    puts "Submodule is new and needs to be initialized"
+  when rev == current_submodules[path]
+    # do nothing
+  when rev != previous_submodules[path]
+    output_submodule_header(path)
+    puts rev
+    # it was modified before... don't touch it
+    puts "Not updating '#{path}' because it's revision pointer isn't the same as the previous HEAD specified"
+  when current_submodules[path].nil?
+    output_submodule_header(path)
+    # it should be stashed
+    puts "Does not exist in this revision (you may wish to stash it with git submodule-helper stash)."
+  when rev != current_submodules[path]
+    output_submodule_header(path)
+    # it should be updated to the latest
+    # Fetch if it the change doesn't exist
+    Dir.chdir(path) do
+      system("(git show '#{current_submodules[path]}' 2> /dev/null 1> /dev/null) || git fetch")
+      system("git checkout '#{current_submodules[path]}'")
+    end
+  end
+end

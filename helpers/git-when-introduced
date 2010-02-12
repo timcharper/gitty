@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ -z "$1" ]; then
+  echo "Usage: $0 <commit> <branch>"
+  echo "  branch is optimal and defaults to current"
+  exit 1
+fi
+what_ref=$1
+branch=$(git symbolic-ref HEAD | sed 's|refs/heads/||')
+git reflog show $branch@{now} | while read ref rest; do
+  if [ -z "$(git rev-list -1 $ref..$what_ref)" ]; then
+    printf "[x] "
+  else
+    printf "[ ] "
+  fi
+  echo $ref $rest
+done | less -R

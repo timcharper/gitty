@@ -1,0 +1,151 @@
+#!/usr/bin/env ruby
+require "tempfile.rb"
+require 'optparse'
+
+DEFAULT_STABLE_BRANCH="master"
+EDITOR=ENV['EDITOR'] || 'vim'
+
+
+class GitCleanBranchesRunner
+  module CandidateState
+    module ConsiderAll
+      def candidate_instructions
+        "# The following is a list of all local and remote branches in your repository"
+      end
+
+      def branch_candidates
+        @branch_candidates ||= branches
+      end
+    end
+
+    module MergedOnly
+      def branch_candidates
+        @branch_candidates ||= (
+          candidates = []
+          branches.each do |branch|
+            next if %r(/(#{preserve_always * '|'})$) =~ branch
+            next unless `git rev-list origin/#{stable_branch}..#{branch}`.strip.empty?
+            candidates << branch
+          end
+          candidates
+        )
+      end
+
+      def candidate_instructions
+        "# The following branches have been merged in to refs/remotes/origin/#{stable_branch}"
+      end
+    end
+  end
+
+  attr_reader :stable_branch
+
+  def initialize(args, output = STDOUT, error = STDERR)
+    @output, @error = output, error
+    extend CandidateState::MergedOnly
+    @stable_branch = DEFAULT_STABLE_BRANCH
+    opts = OptionParser.new
+    opts.banner = "Usage: #{$0} [options]"
+    opts.separator "Options:"
+    opts.on("-a", "--all", "Consider all branches for deletion, regardless if they've been merged into stable") do
+      extend CandidateState::ConsiderAll
+    end
+    opts.on("-b", "--branch [branch]", "The stable branch (default: #{@stable_branch}). If a branch is merged into this, and -a parameter not specified, consider it for deletion.") do |b|
+      @stable_branch = b
+    end
+    opts.parse!(args)
+  end
+
+  def preserve_always
+    [stable_branch] + %w[staging master next HEAD]
+  end
+
+  def fetch_and_prune
+    puts "Fetching and pruning all remotes"
+    `git remote`.each do |remote|
+      system("git fetch #{remote}")
+      system("git remote prune #{remote}")
+    end
+  end
+
+  def branches
+    %x(git for-each-ref).map do |branch_name|
+      next unless %r{.+(refs/(heads|remotes).+$)}.match(branch_name)
+      $1
+    end.compact
+  end
+
+  def candidate_instructions
+    raise NotImplemented
+  end
+
+  def branch_candidates
+    raise NotImplemented
+  end
+
+  def edit_branch_list
+    file = Tempfile.new("cleanup-branch")
+    file.puts candidate_instructions
+    file.puts "# To delete the branches, delete them from this list, and then save and quit"
+    file.puts(branch_candidates * "\n")
+    file.close
+    system("#{EDITOR} #{file.path}")
+    preserve_branches = File.read(file.path).split("\n").grep(/^[^#].+/)
+    file.delete
+
+    unless (erroneous_branches = (preserve_branches - branch_candidates)).empty?
+      puts <<EOF
+Error! unrecognized branches:
+#{erroneous_branches.map{|b| " - #{b}"} * "\n"}
+EOF
+      exit 1
+    end
+
+    preserve_branches
+  end
+
+  def sort_branches(branches)
+    sorted_branches = {}
+    branches.each do |branch|
+      case branch
+      when %r(^refs/remotes/([^/]+)/(.+)$)
+        remote, branch = $1, $2
+        sorted_branches[remote] ||= []
+        sorted_branches[remote] << branch
+      when %r(^refs/heads/(.+)$)
+        sorted_branches[nil] ||= []
+        sorted_branches[nil] << $1
+      else
+        puts "I don't know how to delete #{branch_for_deletion}"
+      end
+    end
+    sorted_branches
+  end
+
+  def delete_branches(branches_for_deletion)
+    sorted_branches = sort_branches(branches_for_deletion)
+    if sorted_branches.empty?
+      puts "No branches to delete."
+      exit 1
+    end
+    puts <<EOF
+Deleting branches:
+#{branches_for_deletion.map{|b| " - #{b}"} * "\n"}
+EOF
+    sorted_branches.each do |remote, branches|
+      if remote.nil?
+        system(*%w[git branch -D] + branches)
+      else
+        system(*%w[git push] + [remote] + branches.map { |b| ":#{b}" })
+      end
+    end
+  end
+
+  def run
+    fetch_and_prune
+    preserve_branches = edit_branch_list
+    delete_branches(branch_candidates - preserve_branches)
+  end
+end
+
+
+GitCleanBranchesRunner.new(ARGV).run

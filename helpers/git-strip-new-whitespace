@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# strip trailing whitespace from any lines you've introduced. If you've staged changes, it strips them from the index (and they stay in your working copy).
+# why would you want to do this?  Keep your patches clean.  Why not just strip all whitespaces from your project?  Well... then you'd have a big nasty commit, wouldn't you?  And some code generators might rely on the whitespace (like annotate-models).
+
+STAGED_CHANGES="$(git diff --cached)"
+if [ "$STAGED_CHANGES" != "" ]; then
+  echo "Stripping trailing spaces from index"
+  git reset 2> /dev/null 1> /dev/null
+  if (echo "$STAGED_CHANGES" | git apply --whitespace=fix --cached); then
+    echo "Successfully stripped all new whitespaces from the index"
+  else
+    BLEW_UP_FILE="/tmp/git-strip-new-whitespace-blew-up"
+    echo "$STAGED_CHANGES" > "$BLEW_UP_FILE"
+    echo "Something went wrong. I wrote the patch for your staged changes to $BLEW_UP_FILE."
+    echo "Apply them back to your index with 'cat $BLEW_UP_FILE | git apply --cached'"
+    exit 1
+  fi
+  exit 0
+fi
+
+git stash
+if (git stash show -p | git apply --whitespace=fix); then
+  echo "Successfully stripped all new whitespaces"
+  git reset 2> /dev/null 1> /dev/null
+  git stash drop 2> /dev/null 1> /dev/null
+else
+  echo "Something went wrong. Your changes were stashed at least :S"
+fi
+exit 0

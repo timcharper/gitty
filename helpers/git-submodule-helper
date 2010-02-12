@@ -1,0 +1,262 @@
+#!/bin/bash
+
+if [ "`which md5`" == "" ]; then
+  if [ "`which md5sum`" == "" ]; then
+    echo "Couldn't find md5 or md5sum.  Aborting"
+    exit 1
+  fi
+
+  md5 () {
+    md5sum | cut -f 1 -d " "
+  }
+fi
+
+list_submodules () {
+  git ls-files --stage | grep "^160000 " | cut -f 2
+}
+
+submodule_url () {
+  git config "submodule.$1.url"
+}
+
+submodule_md5 () {
+  local path="$1"
+  local url=`submodule_url "$path"`
+  local string="$path $url"
+  printf "$string" | md5
+}
+
+submodule_stash_path () {
+  local path="$1"
+  [ ! -d ".git/submodule_cache/" ] && mkdir .git/submodule_cache
+  printf ".git/submodule_cache/`submodule_md5 "$path"`"
+}
+
+submodule_helper_stash () {
+  list_submodules | while read submodule; do 
+    [ ! -d "$submodule/.git" ] && continue
+    stash_path="`submodule_stash_path "$submodule"`"
+    if [ -d "$stash_path" ]; then
+      echo "'$stash_path' already exists: it appears that the submodule $submodule has already been stashed"
+    else
+      mv "$submodule" "$stash_path"
+      echo "Stashed '$submodule' to '$stash_path'"
+    fi
+  done
+}
+
+submodule_helper_unstash () {
+  list_submodules | while read submodule; do 
+    [ -d "$submodule/.git" ] && continue
+    stash_path="`submodule_stash_path "$submodule"`"
+    if [ ! -d "$stash_path" ]; then
+      echo "'$stash_path' doesn't exist, can't restore from stash (maybe it was never stashed?)"
+    else
+      if [ -d "$submodule" ] && ! rmdir "$submodule"; then
+        echo "Path '$submodule' is in the way.  Leaving stashed."
+        continue
+      fi
+      mv "$stash_path/" "$submodule/"
+      echo "Unstashed '$submodule' from '$stash_path'"
+    fi
+  done
+}
+
+submodule_helper_stash_status () {
+  list_submodules | while read submodule; do 
+    stash_path="`submodule_stash_path "$submodule"`"
+    if [ -d "$submodule/.git" ]; then
+      status="checked out"
+    elif [ -d "$stash_path" ]; then
+      status="stashed"
+    else
+      status="????"
+    fi
+
+    if [ "$status" == "stashed" ]; then
+      display_stash_path="$stash_path"
+    else
+      display_stash_path=""
+    fi
+    printf "(%s)\t%s\t%s\n" "$status" "$display_stash_path" "$submodule"
+  done
+}
+
+submodule_helper_attach () {
+  if (cat .git/HEAD | grep ref: 1> /dev/null) ; then
+    echo "You're already on a branch"
+    exit 1
+  fi
+  current_rev=$(git rev-parse HEAD)
+  line=$(git 'for-each-ref' | egrep -v 'HEAD$' | grep $current_rev)
+  if [ $? != 0 ]; then
+    echo "no known branch is currently at ${current_rev}"
+    echo "here are some suggestions: "
+    git branch --contains $current_rev -a | egrep -v 'no branch|HEAD'
+    exit 1
+  fi
+  rev=$(echo $line | awk '{print $1}')
+  ref=$(echo $line | awk '{print $3}')
+  if ( echo $ref | egrep '^refs/heads/' > /dev/null ); then
+    echo "ref: $ref" > .git/HEAD
+    exit 0
+  fi
+
+  if ( echo $ref | egrep '^refs/remotes/' > /dev/null ); then
+    echo "Remote branch ${ref} matches"
+    short_ref=${ref#refs/remotes/}
+    local_ref=${ref#*/*/*/}
+    divergent_commits=$(git rev-list $ref..$local_ref)
+    if [ "$divergent_commits" == "" ]; then
+      echo "fastforwarding $local_ref to $ref"
+      git branch -f "$local_ref" "$ref"
+      git checkout "$local_ref"
+    fi
+    exit 1
+  fi
+}
+
+submodule_helper_status () {
+  local prefix="$1"
+  local status=$(git status)
+  if [ "$(printf "$status" | grep "nothing to commit (working directory clean)")" == "" ]; then
+    echo
+    echo "${prefix}"
+    echo ----------------------------------------
+    echo "$status"
+  fi
+  list_submodules | while read submodule; do
+    pushd $submodule > /dev/null
+    submodule_helper_status "${prefix}${submodule}"
+    popd > /dev/null
+  done
+}
+
+submodule_helper_add_folder () {
+  local folder="$1"
+  pushd $folder > /dev/null
+    url=$(git config remote.origin.url)
+  popd > /dev/null
+  git submodule add "$url" "$folder"
+}
+
+submodule_helper_fetch () {
+  local prefix="$1"
+  local status=$(git status)
+  echo
+  echo "${prefix}"
+  echo ----------------------------------------
+  git fetch
+
+  list_submodules | while read submodule; do
+    pushd $submodule > /dev/null
+    submodule_helper_fetch "${prefix}${submodule}"
+    popd > /dev/null
+  done
+}
+
+submodule_helper_update () {
+  git ls-files --stage | grep "^160000 " | while read line; do
+    submodule=$(printf "$line" | cut -f 2 )
+    version=$(printf "$line" | cut -f 1 | cut -f 2 -d ' ' )
+    pushd $submodule > /dev/null
+    current_version=$(git rev-parse HEAD)
+    if [ ! "$current_version" == "$version" ]; then
+      echo
+      echo "${submodule}"
+      echo ----------------------------------------
+      if [ "$1" != "--offline" ]; then
+        (git show "$version" 2> /dev/null 1> /dev/null) || git fetch
+      fi
+      git checkout $version
+    fi
+    popd > /dev/null
+  done
+}
+
+submodule_helper_checkout () {
+  echo 1
+}
+
+submodule_helper_help () {
+  cat <<EOF
+$0
+V 0.2
+By Tim Harper
+http://tim.theenchanter.com/
+
+A script to help you manage submodules
+
+commands:
+  
+  stash   - Takes all of your submodules, and stashes them temporarily
+            to .git/submodule_cache/ Useful if you want to switch to a
+            branch that with a file that gets in the way of of your
+            submodule
+
+  unstash - Takes any stashed modules that are referenced by the
+            current branch, and puts them back in their place
+
+  stash-status
+          - Show the stashed status of any submodules (and the path
+            where they were stashed at)
+
+  fetch   - Fetch all submodules (good for if you plan on going offline and
+            want to make sure you have everything
+
+  update  - Optimized submodule update - only tries to fetch when needed.  Use
+            --offline to prevent it from trying to fetch when encountering a
+            non-existing revision.
+
+  status  - See the status for all submodules
+
+  attach  - Re-attach your HEAD to a branch that matches your current rev.
+
+  add-folder
+          - add a folder that has been cloned as a submodule already
+
+
+DISCLAIMER: Make sure you back things up first in case things go horribly wrong
+EOF
+}
+
+if [ ! -d ".git" ]; then
+  echo "This must be run from the root directory of the git working copy"
+  exit 1
+fi
+
+case "$1" in
+  stash) 
+    submodule_helper_stash
+    ;;
+  unstash)
+    submodule_helper_unstash
+    ;;
+  stash-status)
+    submodule_helper_stash_status
+    ;;
+  add-folder)
+    submodule_helper_add_folder $2
+    ;;
+  update)
+    submodule_helper_update $2
+    ;;
+  fetch)
+    submodule_helper_fetch /
+    ;;
+  checkout)
+    submodule_helper_checkout
+    ;;
+  status)
+    submodule_helper_status /
+    ;;
+  attach)
+    submodule_helper_attach
+    ;;
+  help)
+    submodule_helper_help
+    ;;
+  *)
+    submodule_helper_help
+    ;;
+esac
