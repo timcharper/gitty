@@ -1,15 +1,17 @@
 class Gitty::Hook < Gitty::Runner
   COMMANDS = %w[
     init
+    add
+    remove
   ]
   COMMANDS.each do |cmd|
     autoload cmd.classify.to_sym, (GITTY_PATH + "commands/#{cmd}.rb").to_s
   end
   
-  def initialize(args, stdin = STDIN, stdout = STDOUT)
-    @args, @stdin, @stdout = args, stdin, stdout
+  def initialize(args, stdout = STDOUT, stderr = STDERR)
+    @args, @stdout, @stderr = args, stdout, stderr
     if COMMANDS.include?(args.first)
-      @target = Gitty::Hook.const_get(args.first.classify).new(args, stdin, stdout)
+      @target = Gitty::Hook.const_get(args.shift.classify).new(args, stdout, stderr)
     else
       parse_args!
     end
@@ -22,13 +24,16 @@ class Gitty::Hook < Gitty::Runner
   end
 
   def run
+    unless File.directory?(".git")
+      stderr.puts "You must run git hook from the root of a git repository"
+      exit 1
+    end
     @target && @target.run
   end
 
   def parse_args!
     opt_p = option_parser
-    opt_p.banner = banner
     opt_p.parse!(args)
-    pp args
+    puts opt_p
   end
 end

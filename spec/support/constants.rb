@@ -1,0 +1,1 @@
+BIN_PATH = GITTY_LIB_PATH + "../bin"

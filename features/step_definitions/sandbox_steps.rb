@@ -1,7 +1,8 @@
 require 'tempfile'
 class SandboxWorld
-  GITTY_BIN   = File.expand_path('../../bin/git-hook', File.dirname(__FILE__))
-  SANDBOX_DIR = File.expand_path('../../tmp/sandbox', File.dirname(__FILE__))
+  GITTY_BIN   = File.expand_path("../../bin/git-hook", File.dirname(__FILE__))
+  GITTY_ASSETS= File.expand_path("../../tmp/assets",   File.dirname(__FILE__))
+  SANDBOX_DIR = File.expand_path("../../tmp/sandbox",  File.dirname(__FILE__))
   RUBY_BINARY = File.join(Config::CONFIG['bindir'], Config::CONFIG['ruby_install_name'])
   SANDBOX_DIR = File.expand_path(File.join(File.dirname(__FILE__), '../../tmp/sandbox'))
 
@@ -73,6 +74,7 @@ end
 Before do
   FileUtils.rm_rf SandboxWorld::SANDBOX_DIR
   FileUtils.mkdir_p SandboxWorld::SANDBOX_DIR
+  ENV["GITTY_ASSETS"] = GITTY_ASSETS
 end
 
 
@@ -123,6 +125,14 @@ Then /^the following (files|folders) should exist:$/ do |file_or_dir, table|
   in_current_dir do
     table.raw.map.each do |path|
       File.exist?(path.first).should == true
+    end
+  end
+end
+
+Then /^the following (files|folders) should not exist:$/ do |file_or_dir, table|
+  in_current_dir do
+    table.raw.map.each do |path|
+      File.exist?(path.first).should == false
     end
   end
 end
