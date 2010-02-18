@@ -1,0 +1,11 @@
+#!/bin/bash
+dirname=$(dirname $0)
+hooktype=$(basename $0)
+
+for base_dir in "${dirname}"/{shared,local}; do
+  [ -d "${base_dir}/${hooktype}.d" ] || continue
+  SUPPORT_DIR="$base_dir"/support
+  for script in "${base_dir}/${hooktype}.d"/*; do
+    "${script}" || exit $?
+  done
+done

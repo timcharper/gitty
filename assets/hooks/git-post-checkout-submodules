@@ -2,7 +2,7 @@
 
 # Description:
 #   A git hook that automatically updates your submodules for you when you change branches or pull
-#   
+#
 #   It works like this:
 #   - If before you changed branches, your submodule's revision differed from what the master repo specified, your submodule is left alone
 #   - If a submodule has been removed from the branch you move to, it alerts you

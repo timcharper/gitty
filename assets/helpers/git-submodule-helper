@@ -33,7 +33,7 @@ submodule_stash_path () {
 }
 
 submodule_helper_stash () {
-  list_submodules | while read submodule; do 
+  list_submodules | while read submodule; do
     [ ! -d "$submodule/.git" ] && continue
     stash_path="`submodule_stash_path "$submodule"`"
     if [ -d "$stash_path" ]; then
@@ -46,7 +46,7 @@ submodule_helper_stash () {
 }
 
 submodule_helper_unstash () {
-  list_submodules | while read submodule; do 
+  list_submodules | while read submodule; do
     [ -d "$submodule/.git" ] && continue
     stash_path="`submodule_stash_path "$submodule"`"
     if [ ! -d "$stash_path" ]; then
@@ -63,7 +63,7 @@ submodule_helper_unstash () {
 }
 
 submodule_helper_stash_status () {
-  list_submodules | while read submodule; do 
+  list_submodules | while read submodule; do
     stash_path="`submodule_stash_path "$submodule"`"
     if [ -d "$submodule/.git" ]; then
       status="checked out"
@@ -188,7 +188,7 @@ http://tim.theenchanter.com/
 A script to help you manage submodules
 
 commands:
-  
+
   stash   - Takes all of your submodules, and stashes them temporarily
             to .git/submodule_cache/ Useful if you want to switch to a
             branch that with a file that gets in the way of of your
@@ -226,7 +226,7 @@ if [ ! -d ".git" ]; then
 fi
 
 case "$1" in
-  stash) 
+  stash)
     submodule_helper_stash
     ;;
   unstash)

@@ -1,6 +1,0 @@
-#!/bin/bash
-dirname=$(dirname $0)
-hooktype=$(basename $0)
-for script in "${dirname}"/{shared,local}/${hooktype}.d/*; do
-  "${script}" || exit $?
-done
