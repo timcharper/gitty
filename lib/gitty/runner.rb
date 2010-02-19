@@ -16,7 +16,7 @@ class Gitty::Runner
   end
   
   def option_parser
-    OptionParser.new do |opts|
+    @option_parser ||= OptionParser.new do |opts|
       opts.banner = "Usage: #{$0}"
       opts.separator "Options:"
       opts.on('--help', "Show help") do |h|

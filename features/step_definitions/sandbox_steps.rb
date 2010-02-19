@@ -1,13 +1,14 @@
 require 'tempfile'
 class SandboxWorld
   GITTY_BIN   = File.expand_path("../../bin/git-hook", File.dirname(__FILE__))
-  GITTY_ASSETS= File.expand_path("../../tmp/assets",   File.dirname(__FILE__))
-  SANDBOX_DIR = File.expand_path("../../tmp/sandbox",  File.dirname(__FILE__))
   RUBY_BINARY = File.join(Config::CONFIG['bindir'], Config::CONFIG['ruby_install_name'])
-  SANDBOX_DIR = File.expand_path(File.join(File.dirname(__FILE__), '../../tmp/sandbox'))
+  TMP_PATH    = Pathname.new(File.expand_path("../../tmp", File.dirname(__FILE__)))
+  GITTY_ASSETS= TMP_PATH + "assets"
+  SANDBOX_PATH= TMP_PATH + "sandbox"
+  REMOTES_PATH= TMP_PATH + "remotes"
 
   def initialize
-    @current_dir = SANDBOX_DIR
+    @current_dir = SANDBOX_PATH
   end
 
   private
@@ -39,6 +40,12 @@ class SandboxWorld
     Dir.chdir(@current_dir, &block)
   end
 
+  def in_dir(new_dir, &block)
+    @current_dir, last_dir = new_dir, @current_dir
+    in_current_dir(&block)
+    @current_dir = last_dir
+  end
+
   def localized_command(command)
     command, args = command.scan(/^(git-hook|git hook|\w+)\s*(.*)$/).flatten
     case command
@@ -52,6 +59,7 @@ class SandboxWorld
 
   def run(command)
     command = localized_command(command)
+    puts command
     stderr_file = Tempfile.new('gitty')
     stderr_file.close
     in_current_dir do
@@ -65,6 +73,13 @@ class SandboxWorld
     end
     @last_stdout
   end
+
+  def interpolate_env_vars!(string)
+    ENV.each do |key, value|
+      string.gsub!("$#{key}", value)
+    end
+    string
+  end
 end
 
 World do
@@ -72,14 +87,15 @@ World do
 end
 
 Before do
-  FileUtils.rm_rf SandboxWorld::SANDBOX_DIR
-  FileUtils.mkdir_p SandboxWorld::SANDBOX_DIR
-  ENV["GITTY_ASSETS"] = GITTY_ASSETS
+  FileUtils.rm_rf SandboxWorld::TMP_PATH
+  FileUtils.mkdir_p SandboxWorld::SANDBOX_PATH
+  ENV["GITTY_ASSETS"] = GITTY_ASSETS.to_s
+  ENV['REMOTES_PATH'] = REMOTES_PATH.to_s
 end
 
 
 Given /^I am in the directory "(.*)"$/ do |path|
-  path = File.join(SandboxWorld::SANDBOX_DIR, sandbox_dir_relative_path)
+  path = File.join(SandboxWorld::SANDBOX_PATH, SANDBOX_PATH_relative_path)
   FileUtils.mkdir_p(path)
   @current_dir = File.join(path)
 end

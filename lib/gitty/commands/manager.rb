@@ -35,7 +35,7 @@ class Gitty::Hook::Manager < Gitty::Runner
   end
 
   def option_parser
-    super.tap do |opts|
+    @option_parser ||= super.tap do |opts|
       opts.banner = "Usage: git hook add [opts] hook-name"
       opts.on("-l", "--local", "Local hook (default)") { |l| options[:kind] = :local }
       opts.on("-s", "--shared", "Remote hook") { |l| options[:kind] = :shared }

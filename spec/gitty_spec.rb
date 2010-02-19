@@ -37,5 +37,23 @@ EOF
         "targets" => ["post-merge", "post-checkout"]
       }
     end
+
+    it "returns nil when no data found" do
+      stream = <<-EOF
+#!/usr/bash
+#
+#
+EOF
+      Gitty.extract_meta_data(stream).should == nil
+    end
+
+    it "returns the data when there's no actual content" do
+      stream = <<-EOF
+#!/usr/bash
+#
+# description: hi
+EOF
+      Gitty.extract_meta_data(stream).should == {"description" => "hi"}
+    end
   end
 end

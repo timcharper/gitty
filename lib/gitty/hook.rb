@@ -3,6 +3,7 @@ class Gitty::Hook < Gitty::Runner
     init
     add
     remove
+    publish
   ]
   COMMANDS.each do |cmd|
     autoload cmd.classify.to_sym, (GITTY_PATH + "commands/#{cmd}.rb").to_s
@@ -18,7 +19,7 @@ class Gitty::Hook < Gitty::Runner
   end
   
   def option_parser
-    super.tap do |opts|
+    @option_parser ||= super.tap do |opts|
       opts.banner = "Usage: git hook [command]\nCommands are: #{COMMANDS.join(', ')}"
     end
   end

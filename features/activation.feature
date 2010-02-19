@@ -15,7 +15,7 @@ Feature: activation
       #!/bin/bash
       touch it_worked
     """
-    And I switch to a new branch named "task_branch"
+    And I run "git checkout -b task_branch"
     Then the following files should exist:
     | it_worked |
     
