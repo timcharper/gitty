@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+# description: Detects if your rebase will rewrite commits that have been propagated to other branches, and stops the rebase if so.
+# version: 0.1
+# targets: ["pre-rebase"]
+# helpers: []
 
 target_branch = ARGV[0]
 latest_commit = %x{git rev-list #{target_branch}..HEAD}.split("\n").last

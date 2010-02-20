@@ -1,3 +1,9 @@
+#!/bin/bash
+# description: Let's you tag debug code and prevent it from being committed by adding the word "NOCOMMIT" to your source
+# version: 0.1
+# targets: ["pre-commit"]
+# helpers: []
+
 if git diff --cached | grep NOCOMMIT > /dev/null; then
   echo "You tried to commit a line containing NOCOMMIT"
   exit 1
