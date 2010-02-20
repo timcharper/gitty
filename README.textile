@@ -1,0 +1,21 @@
+h1. Gitty : Unobtrusively extend git.
+
+Gitty provides an interface to manage commonly used git-hooks for repositories. A few use cases are:
+
+* Make it so that git submodules are intellegently updated after switching branches or merging.
+* Prevent trailing whitespace from being committed.
+* Help prevent scratch / debug code from being committed by refusing to commit a KEYWORD that marks it as such.
+* Share hooks with collaborators
+
+h2. Currently in alpha!
+
+Missing features:
+
+* List available hooks
+* List installed hooks
+* Only receive hooks from trusted publishers. (currently when gitty is activated on a repository, any hook published to origin is automatically installed)
+* It's very young and might break
+
+h2. Issues
+
+Report them here: http://github.com/timcharper/gitty/issues
