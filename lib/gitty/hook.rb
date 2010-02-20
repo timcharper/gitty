@@ -4,6 +4,7 @@ class Gitty::Hook < Gitty::Runner
     add
     remove
     publish
+    shell
   ]
   COMMANDS.each do |cmd|
     autoload cmd.classify.to_sym, (GITTY_PATH + "commands/#{cmd}.rb").to_s
