@@ -95,9 +95,13 @@ end
 
 
 Given /^I am in the directory "(.*)"$/ do |path|
-  path = File.join(SandboxWorld::SANDBOX_PATH, SANDBOX_PATH_relative_path)
+  path = (SandboxWorld::SANDBOX_PATH + path).to_s
   FileUtils.mkdir_p(path)
   @current_dir = File.join(path)
+end
+
+Given /^I switch back to the original repository$/ do
+  @current_dir = SandboxWorld::SANDBOX_PATH.to_s
 end
 
 Given /^a file named "([^\"]*)"$/ do |file_name|

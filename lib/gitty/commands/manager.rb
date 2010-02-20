@@ -1,6 +1,5 @@
 class Gitty::Hook::Manager < Gitty::Runner
-  include ::Gitty::PathHelpers
-
+  include ::Gitty::Helpers
   def initialize(args, stdout = STDOUT, stderr = STDERR)
     super
     @hookname = args.shift

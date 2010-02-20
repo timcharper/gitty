@@ -4,7 +4,7 @@ Feature: managing hooks
   In order to use custom hooks in the git repository
   
   Background:
-    Given I have a git repository activated with gitty
+    Given I have a git repository initialized with gitty
     And the file "$GITTY_ASSETS/hooks/validation" contains:
       """
       #!/usr/bin/bash

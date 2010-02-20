@@ -13,7 +13,7 @@ require "string.rb"
 require "ext.rb"
 
 module Gitty
-  autoload :PathHelpers, (GITTY_PATH + "path_helpers.rb").to_s
+  autoload :Helpers, (GITTY_PATH + "helpers.rb").to_s
   def self.find_asset(file)
     [ENV["GITTY_ASSETS"], ASSETS_PATH].compact.each do |asset_path|
       fullpath = File.join(asset_path, file)
