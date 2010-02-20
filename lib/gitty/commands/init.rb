@@ -4,16 +4,16 @@ class Gitty::Hook::Init < Gitty::Runner
   
   CLIENT_HOOKS = %w[
     applypatch-msg
-    pre-applypatch
-    post-applypatch
-    pre-commit
-    prepare-commit-msg
     commit-msg
-    post-commit
-    pre-rebase
+    post-applypatch
     post-checkout
+    post-commit
     post-merge
+    pre-applypatch
     pre-auto-gc
+    pre-commit
+    pre-rebase
+    prepare-commit-msg
   ]
   def run
     puts "Initializing with gitty"
