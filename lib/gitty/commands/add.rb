@@ -12,7 +12,7 @@ class Gitty::Hook::Add < Gitty::Hook::Manager
         file_with_existing_directory!(base_directory + "#{target}.d" + @hookname)
       )
     end
-    meta_data["helpers"].each do |helper|
+    (meta_data["helpers"] || []).each do |helper|
       cp(Gitty.find_asset("helpers/#{helper}"), helpers_directory + helper)
       chmod(0755, helpers_directory + helper)
     end

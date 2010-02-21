@@ -14,8 +14,12 @@ require "ext.rb"
 
 module Gitty
   autoload :Helpers, (GITTY_PATH + "helpers.rb").to_s
+  def self.asset_paths
+    [ENV["GITTY_ASSETS"], ASSETS_PATH].compact.map {|p| Pathname.new(p)}
+  end
+
   def self.find_asset(file)
-    [ENV["GITTY_ASSETS"], ASSETS_PATH].compact.each do |asset_path|
+    asset_paths.each do |asset_path|
       fullpath = File.join(asset_path, file)
       return fullpath if File.exist?(fullpath)
     end

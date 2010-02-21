@@ -1,6 +1,7 @@
 class Gitty::Hook < Gitty::Runner
   COMMANDS = %w[
     init
+    list
     add
     remove
     publish
