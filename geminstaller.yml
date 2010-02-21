@@ -1,0 +1,7 @@
+---
+defaults:
+  install_options: "--no-ri --no-rdoc"
+gems:
+# TEST environment
+- { name: 'rspec',                   version: ">= 1.3.0" }
+- { name: 'cucumber',                version: ">= 0.6.2" }
