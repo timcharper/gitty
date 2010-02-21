@@ -15,7 +15,7 @@ require "ext.rb"
 module Gitty
   autoload :Helpers, (GITTY_PATH + "helpers.rb").to_s
   def self.asset_paths
-    [ENV["GITTY_ASSETS"], ASSETS_PATH].compact.map {|p| Pathname.new(p)}
+    [ENV["GITTY_ASSETS"], ENV["HOME"] + "/.gitty", ASSETS_PATH].compact.map {|p| Pathname.new(p)}
   end
 
   def self.find_asset(file)
