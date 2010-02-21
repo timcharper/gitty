@@ -143,8 +143,9 @@ end
 
 Then /^the following (files|folders) should exist:$/ do |file_or_dir, table|
   in_current_dir do
-    table.raw.map.each do |path|
-      File.exist?(path.first).should == true
+    table.raw.map { |r| r.first}.each do |path|
+      next if File.exist?(path)
+      raise Spec::Expectations::ExpectationNotMetError, "expected #{path} to exist, but it didn't."
     end
   end
 end

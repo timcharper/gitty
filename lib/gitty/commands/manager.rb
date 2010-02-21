@@ -9,12 +9,16 @@ class Gitty::Hook::Manager < Gitty::Runner
     @options ||= super.update(:kind => :local)
   end
 
-  def asset_file
+  def src_hook_file
     Gitty.find_asset("hooks/#{@hookname}")
   end
 
+  def master_hook_file
+    @master_hook_file ||= hooks_directory + @hookname
+  end
+
   def meta_data
-    @meta_data ||= Gitty.extract_meta_data(File.read(asset_file))
+    @meta_data ||= Gitty.extract_meta_data(File.read(src_hook_file))
   end
 
   def run
@@ -33,12 +37,14 @@ class Gitty::Hook::Manager < Gitty::Runner
     @helpers_directory ||= existing_directory!(".git/hooks/#{options[:kind]}/helpers")
   end
 
+  def hooks_directory
+    existing_directory!(base_directory + "hooks")
+  end
+
   def option_parser
     @option_parser ||= super.tap do |opts|
-      opts.banner = "Usage: git hook add [opts] hook-name"
       opts.on("-l", "--local", "Local hook (default)") { |l| options[:kind] = :local }
       opts.on("-s", "--shared", "Remote hook") { |l| options[:kind] = :shared }
     end
   end
-
 end

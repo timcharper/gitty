@@ -25,6 +25,7 @@ Feature: managing hooks
   Scenario: adding and removing a local hook
     When I run "git hook add --local validation"
     Then the following files should exist:
+      | .git/hooks/local/hooks/validation         |
       | .git/hooks/local/post-commit.d/validation |
       | .git/hooks/local/helpers/validator        |
       
@@ -37,10 +38,12 @@ Feature: managing hooks
     When I run "git hook add --shared validation"
     Then the following files should exist:
       | .git/hooks/shared/post-commit.d/validation |
+      | .git/hooks/shared/hooks/validation         |
       | .git/hooks/shared/helpers/validator        |
       
     When I run "git hook remove --shared validation"
     Then the following files should not exist:
       | .git/hooks/shared/post-commit.d/validation |
+      | .git/hooks/shared/hooks/validation         |
 #      | .git/hooks/shared/helpers/validator |
 
