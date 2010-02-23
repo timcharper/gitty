@@ -1,6 +1,6 @@
 require GITTY_PATH + "commands/manager"
 
-class Gitty::Hook::Add < Gitty::Hook::Manager
+class Gitty::HookCommand::Add < Gitty::HookCommand::Manager
   include FileUtils
 
   def run

@@ -1,5 +1,5 @@
 require 'fileutils'
-class Gitty::Hook::Init < Gitty::Runner
+class Gitty::HookCommand::Init < Gitty::Runner
   include ::Gitty::Helpers
   
   CLIENT_HOOKS = %w[

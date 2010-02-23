@@ -1,4 +1,4 @@
-class Gitty::Hook < Gitty::Runner
+class Gitty::HookCommand < Gitty::Runner
   COMMANDS = %w[
     init
     list
@@ -10,16 +10,16 @@ class Gitty::Hook < Gitty::Runner
   COMMANDS.each do |cmd|
     autoload cmd.classify.to_sym, (GITTY_PATH + "commands/#{cmd}.rb").to_s
   end
-  
+
   def initialize(args, stdout = STDOUT, stderr = STDERR)
     @args, @stdout, @stderr = args, stdout, stderr
     if COMMANDS.include?(args.first)
-      @target = Gitty::Hook.const_get(args.shift.classify).new(args, stdout, stderr)
+      @target = Gitty::HookCommand.const_get(args.shift.classify).new(args, stdout, stderr)
     else
       parse_args!
     end
   end
-  
+
   def option_parser
     @option_parser ||= super.tap do |opts|
       opts.banner = "Usage: git hook [command]\nCommands are: #{COMMANDS.join(', ')}"

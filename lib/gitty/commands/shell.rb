@@ -1,5 +1,5 @@
 require 'fileutils'
-class Gitty::Hook::Shell < Gitty::Runner
+class Gitty::HookCommand::Shell < Gitty::Runner
   include ::Gitty::Helpers
 
   def run

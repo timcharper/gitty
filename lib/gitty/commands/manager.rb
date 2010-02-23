@@ -1,4 +1,4 @@
-class Gitty::Hook::Manager < Gitty::Runner
+class Gitty::HookCommand::Manager < Gitty::Runner
   include ::Gitty::Helpers
   def initialize(args, stdout = STDOUT, stderr = STDERR)
     super

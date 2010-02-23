@@ -1,5 +1,5 @@
 require 'fileutils'
-class Gitty::Hook::List < Gitty::Runner
+class Gitty::HookCommand::List < Gitty::Runner
   include ::Gitty::Helpers
   include FileUtils
   KINDS = [:local, :shared, :available]

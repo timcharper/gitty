@@ -1,5 +1,5 @@
 require GITTY_PATH + "commands/manager"
-class Gitty::Hook::Remove < Gitty::Hook::Manager
+class Gitty::HookCommand::Remove < Gitty::HookCommand::Manager
   include FileUtils
   def run
     rm(master_hook_file)

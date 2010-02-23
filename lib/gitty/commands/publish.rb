@@ -1,4 +1,4 @@
-class Gitty::Hook::Publish < Gitty::Runner
+class Gitty::HookCommand::Publish < Gitty::Runner
   include ::Gitty::Helpers
   
   def run

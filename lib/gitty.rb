@@ -52,4 +52,4 @@ module Gitty
 end
 
 require "gitty/runner.rb"
-require "gitty/hook.rb"
+require "gitty/hook_command.rb"
