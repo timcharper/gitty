@@ -1,6 +1,29 @@
 require File.dirname(__FILE__) + "/../lib/gitty"
-SPEC_PATH = GITTY_ROOT_PATH + "spec"
 require 'rubygems'
-require 'cucumber'
-require SPEC_PATH + "support/constants.rb"
 require "spec"
+SPEC_PATH = Pathname.new(File.dirname(__FILE__))
+require SPEC_PATH + "../features/support/sandbox_world.rb"
+require SPEC_PATH + "support/constants.rb"
+
+
+require 'forwardable'
+Spec::Runner.configure do |config|
+  extend Forwardable
+  def sandbox
+    @sandbox ||= SandboxWorld.new
+  end
+
+  [:run, :in_dir, :current_dir, :create_file, :last_exit_status, :last_stderr, :last_stdout, :reset_sandbox!].each do |m|
+    eval "def #{m}(*args) sandbox.send(:#{m}, *args) end"
+  end
+
+  config.before(:each) do
+    reset_sandbox!
+    @_original_dir = Dir.pwd
+    Dir.chdir(current_dir)
+  end
+
+  config.after(:each) do
+    Dir.chdir(@_original_dir)
+  end
+end

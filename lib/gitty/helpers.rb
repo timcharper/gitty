@@ -18,4 +18,8 @@ module Gitty::Helpers
   def cmd(*args)
     system(*args.flatten)
   end
+
+  def search_for_file_in_paths(paths, file)
+
+  end
 end
