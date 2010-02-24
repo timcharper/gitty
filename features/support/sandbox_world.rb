@@ -1,6 +1,6 @@
 require 'tempfile'
 class SandboxWorld
-  GITTY_BIN   = File.expand_path("../../bin/git-hook", File.dirname(__FILE__))
+  GITTY_BIN   = File.expand_path("../../bin", File.dirname(__FILE__))
   RUBY_BINARY = File.join(Config::CONFIG['bindir'], Config::CONFIG['ruby_install_name'])
   TMP_PATH    = Pathname.new(File.expand_path("../../tmp", File.dirname(__FILE__)))
   GITTY_ASSETS= TMP_PATH + "assets"
@@ -31,19 +31,7 @@ class SandboxWorld
     @current_dir = last_dir
   end
 
-  def localized_command(command)
-    command, args = command.scan(/^(git-hook|git hook|\w+)\s*(.*)$/).flatten
-    case command
-    when 'git-hook', 'git hook'
-      command = SandboxWorld::GITTY_BIN
-      "#{SandboxWorld::RUBY_BINARY} #{command} #{args}"
-    else
-      [command, args].join(" ")
-    end
-  end
-
   def run(command)
-    command = localized_command(command)
     puts command
     stderr_file = Tempfile.new('gitty')
     stderr_file.close
@@ -72,5 +60,6 @@ class SandboxWorld
     FileUtils.mkdir_p SandboxWorld::SANDBOX_PATH
     ENV["GITTY_ASSETS"] = GITTY_ASSETS.to_s
     ENV['REMOTES_PATH'] = REMOTES_PATH.to_s
+    ENV["PATH"] = [GITTY_BIN, ENV["PATH"]].join(":") unless ENV["PATH"].include?(GITTY_BIN)
   end
 end

@@ -30,17 +30,28 @@ Feature: publishing hooks
     Then the latest commit on origin/--hooks-- should contain "added a validation hook to increase team morale"
     
     When I clone "$REMOTES_PATH/remote.git" as "cloned"
-    And I run "git hook init"
-    And I run "echo content > README.txt"
-    And I run "git add README.txt"
-    And I run "git commit -m 'added a readme'"
+    When I run:
+    """
+      git hook init
+      echo content > README.txt
+      git add README.txt
+      git commit -m 'added a readme'
+    """
     Then the error output should contain "That is the greatest code I've ever seen written! You're amazing!"
     
-    When I run "git hook uninstall --shared validation"
-    And I run "git hook publish -m 'Removed team morale booster.'"
+    When I run:
+    """
+      git hook uninstall --shared validation
+      git hook publish -m 'Removed team morale booster.'
+    """
     And I switch back to the original repository
-    And I run "git fetch"
-    And I run "echo more content >> README.txt"
-    And I run "git commit -m 'added content to the readme' -a"
+
+    And I run:
+    """
+      git fetch
+      echo more content >> README.txt
+      git commit -m 'added content to the readme' -a
+    """
+
     Then the error output should not contain "That is the greatest code I've ever seen written! You're amazing!"
     
