@@ -37,13 +37,13 @@ Feature:
     shared:
     - validation
 
-    available:
+    uninstalled:
     """
 
-  Scenario: listing available hooks doesn't include activated hooks
-    When I run "git hook list --available"
+  Scenario: listing uninstalled hooks doesn't include installed hooks
+    When I run "git hook list --uninstalled"
     Then the output should contain "validation"
 
     When I run "git hook add validation"
-    When I run "git hook list --available"
+    When I run "git hook list --uninstalled"
     Then the output should not contain "validation"

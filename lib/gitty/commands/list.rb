@@ -2,7 +2,7 @@ require 'fileutils'
 class Gitty::HookCommand::List < Gitty::Runner
   include ::Gitty::Helpers
   include FileUtils
-  KINDS = [:local, :shared, :available]
+  KINDS = [:local, :shared, :uninstalled]
 
   def run
     stdout.puts "Listing hooks"
@@ -11,16 +11,21 @@ class Gitty::HookCommand::List < Gitty::Runner
     which_to_show.each { |w| show_hooks(w) }
   end
 
+  def all_hooks
+    @all_hooks = Gitty::Hook.find_all
+  end
+
   def show_hooks(which)
     case which
-    when :local     then show_local_or_shared_hooks('local')
-    when :shared    then show_local_or_shared_hooks('shared')
-    when :available then show_available_hooks
+    when :local, :shared then show_local_or_shared_hooks(which)
+    when :uninstalled then show_uninstalled_hooks
+    else
+      puts "boo"
     end
   end
 
   def show_local_or_shared_hooks(which)
-    hook_names = filenames_in(installed_hooks_path(which))
+    hook_names = all_hooks.select { |h| h.install_kind == which.to_sym }.map(&:name)
     return if hook_names.empty?
     puts "#{which}:\n#{listify(hook_names)}\n\n"
   end
@@ -29,25 +34,11 @@ class Gitty::HookCommand::List < Gitty::Runner
     hooks.map { |h| "- #{h}" }.join("\n")
   end
 
-  def filenames_in(dir)
-    if File.directory?(dir)
-      Dir.glob((dir + "*").to_s).sort.map do |path|
-        File.basename(path)
-      end
-    else
-      []
-    end
-  end
-
-  def installed_hooks_path(which)
-    Pathname.new(".git/hooks/#{which}/hooks")
-  end
-
-  def show_available_hooks
-    all_hooks = Gitty.asset_paths.map {|asset_path| filenames_in(asset_path + "hooks")}.flatten
-    installed_hooks = [:local, :shared].map { |which| filenames_in(installed_hooks_path(which)) }.flatten
-    available_hooks = all_hooks.sort - installed_hooks.sort
-    puts "available:\n#{listify(available_hooks)}\n\n"
+  def show_uninstalled_hooks
+    available_hook_names = all_hooks.select { |h| ! h.installed? }.map(&:name)
+    installed_hook_names = all_hooks.select { |h| h.installed? }.map(&:name)
+    uninstalled_hooks = (available_hook_names - installed_hook_names).sort
+    puts "uninstalled:\n#{listify(uninstalled_hooks)}\n\n"
   end
 
   def option_parser
@@ -56,11 +47,11 @@ class Gitty::HookCommand::List < Gitty::Runner
       opts.on("-l", "--local", "Show local hooks") do
         options[:local] = true
       end
-      opts.on("-r", "--shared", "Show shared hooks") do
+      opts.on("-s", "--shared", "Show shared hooks") do
         options[:shared] = true
       end
-      opts.on("-a", "--available", "Show available hooks") do
-        options[:available] = true
+      opts.on("-u", "--uninstalled", "Show uninstalled hooks") do
+        options[:uninstalled] = true
       end
     end
   end
