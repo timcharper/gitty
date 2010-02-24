@@ -4,7 +4,7 @@ class Gitty::HookCommand::Add < Gitty::HookCommand::Manager
   include FileUtils
 
   def run
-    hook = Gitty::Hook.find(@hookname, :kind => :available)
+    hook = Gitty::Hook.find(@hookname, :installed => false)
     hook.install(options[:kind])
   end
 

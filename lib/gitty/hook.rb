@@ -7,11 +7,19 @@ class Gitty::Hook
     options.each do |k,v|
       send("#{k}=", v)
     end
-    extend Gitty::Hook::AvailableHookStrategy
+    if installed?
+      extend Gitty::Hook::InstalledHookStrategy
+    else
+      extend Gitty::Hook::AvailableHookStrategy
+    end
   end
 
   def self.available_hooks_search_paths
     Gitty.asset_paths.map { |ap| File.join(ap, "hooks") }
+  end
+
+  def self.installed_hooks_search_paths
+    [installed_hooks_path(:local), installed_hooks_path(:shared)]
   end
 
   def self.installed_path(which = :local)
@@ -26,13 +34,9 @@ class Gitty::Hook
     installed_path(which) + "helpers"
   end
 
-  def self.find_all(kind, filters = {})
-    candidates =
-      case kind
-      when :available
-        find_all_in_paths(available_hooks_search_paths)
-      end
-
+  def self.find_all(filters = {})
+    paths = installed_hooks_search_paths + available_hooks_search_paths
+    candidates = find_all_in_paths(paths)
     filter_candidates(candidates, filters)
   end
 
@@ -44,7 +48,7 @@ class Gitty::Hook
   end
 
   def self.find(name, options)
-    find_all(options[:kind], :name => name).first
+    find_all(options.merge(:name => name)).first
   end
 
   def self.find_all_in_paths(paths)
@@ -53,8 +57,16 @@ class Gitty::Hook
     end
   end
 
-  def installed
+  def installed?
+    install_kind ? true : false
+  end
+  alias installed installed?
 
+  def install_kind
+    case
+    when path.include?(self.class.installed_hooks_path(:local).to_s) then :local
+    when path.include?(self.class.installed_hooks_path(:shared).to_s) then :shared
+    end
   end
 
   def name
@@ -96,6 +108,14 @@ class Gitty::Hook
   module InstalledHookStrategy
     def install(which = :local)
       # do nothing
+    end
+
+    def uninstall
+      target_hook_path = path
+      base_directory = Pathname.new(path) + ".."
+      meta_data["targets"].each { |target| rm_f(base_directory + "#{target}.d" + name) }
+      rm(target_hook_path)
+      # TODO - clean up helpers
     end
   end
 

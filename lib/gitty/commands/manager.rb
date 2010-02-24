@@ -9,36 +9,8 @@ class Gitty::HookCommand::Manager < Gitty::Runner
     @options ||= super.update(:kind => :local)
   end
 
-  def src_hook_file
-    Gitty.find_asset("hooks/#{@hookname}")
-  end
-
-  def master_hook_file
-    @master_hook_file ||= hooks_directory + @hookname
-  end
-
-  def meta_data
-    @meta_data ||= Gitty.extract_meta_data(File.read(src_hook_file))
-  end
-
   def run
     raise NotImplementedError
-  end
-
-  def target_file(hook)
-    @target_file ||= file_with_existing_directory!(base_directory + "#{hook}.d/#{@hookname}")
-  end
-
-  def base_directory
-    @base_directory ||= existing_directory!(".git/hooks/#{options[:kind]}")
-  end
-
-  def helpers_directory
-    @helpers_directory ||= existing_directory!(".git/hooks/#{options[:kind]}/helpers")
-  end
-
-  def hooks_directory
-    existing_directory!(base_directory + "hooks")
   end
 
   def option_parser

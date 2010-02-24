@@ -2,11 +2,8 @@ require GITTY_PATH + "commands/manager"
 class Gitty::HookCommand::Remove < Gitty::HookCommand::Manager
   include FileUtils
   def run
-    rm(master_hook_file)
-    meta_data["targets"].each do |target|
-      rm(target_file(target))
-    end
-    # TODO - cleanup helpers
+    hook = Gitty::Hook.find(@hookname, :install_kind => options[:kind])
+    hook.uninstall
   end
 
   def option_parser
