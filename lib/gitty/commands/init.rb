@@ -34,7 +34,7 @@ class Gitty::HookCommand::Init < Gitty::Runner
           cmd(*%w[git symbolic-ref HEAD refs/heads/--hooks--])
           cmd(*%w[git commit --allow-empty -m initial\ commit])
         end
-        cmd(*%w[git reset --hard], hooks_rev) if hooks_rev
+        cmd(*%w[git reset --hard] + hooks_rev) if hooks_rev
       end
     end
   end
