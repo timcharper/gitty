@@ -58,5 +58,18 @@ Feature: managing hooks
     Then the last exit status should be 1
     Then the error output should contain "there is no installed hook named 'validation'"
 
-#      | .git/hooks/shared/helpers/validator |
+  Scenario: updating a hook
+    When I run "git hook install validation"
+    And the file "$GITTY_ASSETS/hooks/validation" contains:
+      """
+      #!/usr/bin/bash
+      #
+      # description: You are rock
+      # version: 0.6
+      # targets: ["post-commit"]
+      # helpers: ["validator"]
 
+      $GITTY_HELPERS/validator
+      """
+    When I run "git hook install validation"
+    Then the file ".git/hooks/local/hooks/validation" should include "You are rock"

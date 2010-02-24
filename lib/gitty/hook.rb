@@ -108,7 +108,7 @@ class Gitty::Hook
       cp(path, target_hook_path + name)
       chmod(0755, target_hook_path + name)
       meta_data["targets"].each do |target|
-        ln_s(
+        ln_sf(
           "../hooks/#{name}",
           file_with_existing_directory!(base_directory + "#{target}.d" + name)
         )
