@@ -25,7 +25,7 @@ Feature: auto submodules
         git remote add origin ../../submodule.git
         git push origin master
       cd ..
-      .git/hooks/local/helpers/git-submodule-helper add-folder submod
+      ../../assets/helpers/git-submodule-helper add-folder submod
       git commit -m "added submodule"
     """
     Then the following files should exist:

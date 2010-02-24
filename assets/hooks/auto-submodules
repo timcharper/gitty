@@ -10,7 +10,6 @@
 #   - Otherwise, it checks out the revision for you
 # version: 0.1
 # targets: ["post-applypatch", "post-checkout", "post-merge"]
-# helpers: ["git-submodule-helper"]
 
 module GitMethods
   def chdir_parent
@@ -70,9 +69,32 @@ previous_submodules = list_submodules('HEAD@{1}')
     Dir.chdir(path) do
       # Fetch if it the change doesn't exist
       system("(git show '#{current_submodules[path]}' 2> /dev/null 1> /dev/null) || git fetch")
-      system("git checkout '#{current_submodules[path]}'")
-      system("echo", "#{HELPERS}/git-submodule-helper", "attach")
-      system("#{HELPERS}/git-submodule-helper", "attach")
+
+      current_rev = current_submodules[path]
+      STDERR.puts("submodule is pointing to #{rev}")
+      rev, ref_kind, ref = %x{git for-each-ref}.split("\n").map { |l| l.split(" ") }.detect {|l| l.first == current_rev }
+
+      if ref.nil?
+        STDERR.puts "no known branch is currently at #{current_rev}, so we had to detach your HEAD."
+        STDERR.puts "here are some suggestions: "
+        system("git branch --contains #{current_rev} -a | egrep -v 'no branch|HEAD' 1>&2")
+        exit 1
+      end
+      if ref.match(/^refs\/heads/)
+        exec("git checkout '#{File.basename(ref)}'")
+      end
+
+      if ref.match(/^refs\/remotes/) then
+        local_ref=File.basename(ref)
+
+        STDERR.puts "Remote branch #{ref} matches"
+        divergent_commits=%x{git rev-list #{ref}..#{local_ref}}.strip
+        if divergent_commits.empty?
+          STDERR.puts "fastforwarding #{local_ref} to #{ref}"
+          system("git branch -f #{local_ref} #{ref}")
+          exec("git checkout #{local_ref}")
+        end
+      end
     end
   end
 end
