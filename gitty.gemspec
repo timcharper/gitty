@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{gitty}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tim Harper"]
-  s.date = %q{2010-02-21}
+  s.date = %q{2010-02-24}
   s.default_executable = %q{git-hook}
   s.description = %q{Unobtrusively extend git}
   s.email = %q{timcharper@gmail.com}
@@ -28,27 +28,28 @@ Gem::Specification.new do |s|
      "assets/helpers/git-trash",
      "assets/helpers/git-when-introduced",
      "assets/helpers/hookd_wrapper",
+     "assets/hooks/auto-submodules",
      "assets/hooks/clean-patches",
-     "assets/hooks/git-post-checkout-submodules",
      "assets/hooks/git-prevent-messy-rebase",
-     "assets/hooks/prevent-nocommit-tags",
+     "assets/hooks/nocommit",
      "bin/git-hook",
      "cucumber.yml",
      "lib/ext.rb",
      "lib/gitty.rb",
-     "lib/gitty/commands/add.rb",
      "lib/gitty/commands/init.rb",
+     "lib/gitty/commands/install.rb",
      "lib/gitty/commands/list.rb",
-     "lib/gitty/commands/manager.rb",
      "lib/gitty/commands/publish.rb",
-     "lib/gitty/commands/remove.rb",
      "lib/gitty/commands/shell.rb",
+     "lib/gitty/commands/uninstall.rb",
      "lib/gitty/helpers.rb",
      "lib/gitty/hook.rb",
+     "lib/gitty/hook_command.rb",
      "lib/gitty/runner.rb",
      "lib/string.rb",
-     "spec/gitty/commands/add_spec.rb",
+     "spec/gitty/hook_spec.rb",
      "spec/gitty_spec.rb",
+     "spec/spec.opts",
      "spec/spec_helper.rb",
      "spec/support/constants.rb"
   ]
@@ -58,7 +59,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Unobtrusively extend git}
   s.test_files = [
-    "spec/gitty/commands/add_spec.rb",
+    "spec/gitty/hook_spec.rb",
      "spec/gitty_spec.rb",
      "spec/spec_helper.rb",
      "spec/support/constants.rb"
