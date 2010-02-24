@@ -25,7 +25,7 @@ Feature: publishing hooks
       """
 
   Scenario: sharing hooks between repositories
-    When I run "git hook add --shared validation"
+    When I run "git hook install --shared validation"
     And I run "git hook publish -m 'added a validation hook to increase team morale'"
     Then the latest commit on origin/--hooks-- should contain "added a validation hook to increase team morale"
     
@@ -36,7 +36,7 @@ Feature: publishing hooks
     And I run "git commit -m 'added a readme'"
     Then the error output should contain "That is the greatest code I've ever seen written! You're amazing!"
     
-    When I run "git hook remove --shared validation"
+    When I run "git hook uninstall --shared validation"
     And I run "git hook publish -m 'Removed team morale booster.'"
     And I switch back to the original repository
     And I run "git fetch"

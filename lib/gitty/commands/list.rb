@@ -19,14 +19,11 @@ class Gitty::HookCommand::List < Gitty::Runner
     case which
     when :local, :shared then show_local_or_shared_hooks(which)
     when :uninstalled then show_uninstalled_hooks
-    else
-      puts "boo"
     end
   end
 
   def show_local_or_shared_hooks(which)
     hook_names = all_hooks.select { |h| h.install_kind == which.to_sym }.map(&:name)
-    return if hook_names.empty?
     puts "#{which}:\n#{listify(hook_names)}\n\n"
   end
 

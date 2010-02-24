@@ -2,8 +2,8 @@ class Gitty::HookCommand < Gitty::Runner
   COMMANDS = %w[
     init
     list
-    add
-    remove
+    install
+    uninstall
     publish
     shell
   ]

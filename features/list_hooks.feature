@@ -25,8 +25,8 @@ Feature:
       """
 
   Scenario: listing all hooks
-    When I run "git hook add --shared validation"
-    And I run "git hook add --local warning"
+    When I run "git hook install --shared validation"
+    And I run "git hook install --local warning"
     And I run "git hook list"
     Then the output should contain
     """
@@ -44,6 +44,6 @@ Feature:
     When I run "git hook list --uninstalled"
     Then the output should contain "validation"
 
-    When I run "git hook add validation"
+    When I run "git hook install validation"
     When I run "git hook list --uninstalled"
     Then the output should not contain "validation"

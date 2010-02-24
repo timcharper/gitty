@@ -100,3 +100,6 @@ Then /^the (error output|output) should be$/ do |which, text|
   (which == "error output" ? last_stderr : last_stdout).should == text
 end
 
+Then /^the last exit status should be (\d+)$/ do |code|
+  @last_exit_status.should == code.to_i
+end
