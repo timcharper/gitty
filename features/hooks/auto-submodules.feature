@@ -48,3 +48,15 @@ Feature: auto submodules
     
     Then the file ".git/HEAD" should include "ref: refs/heads/master"
     And the file "submod/.git/HEAD" should include "ref: refs/heads/master"
+
+    # Test auto-fastforward
+    When I run:
+    """
+      cd submod
+        git push origin submodule_next:submodule_next
+        git branch submodule_next master -f
+      cd ..
+      git checkout super_project_next
+    """
+    Then the file ".git/HEAD" should include "ref: refs/heads/super_project_next"
+    Then the file "submod/.git/HEAD" should include "ref: refs/heads/submodule_next"
