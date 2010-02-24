@@ -25,30 +25,6 @@ module Gitty
     end
     nil
   end
-
-  def self.creating_dir_if_nonexistant(dir)
-    FileUtils.mkdir_p(dir)
-    Pathname.new(dir)
-  end
-
-  def self.extract_meta_data(string_or_io)
-    io = string_or_io.respond_to?(:readline) ? string_or_io : StringIO.new(string_or_io)
-    meta_yaml = ""
-    begin
-      while line = io.readline
-        next unless line.match(/^# (description.+)/)
-        meta_yaml = "#{$1}\n"
-        break
-      end
-
-      while line = io.readline
-        break unless line.match(/^# (.+)/)
-        meta_yaml << "#{$1}\n"
-      end
-    rescue EOFError
-    end
-    meta_yaml.empty? ? nil : YAML.load(meta_yaml)
-  end
 end
 
 require "gitty/runner.rb"

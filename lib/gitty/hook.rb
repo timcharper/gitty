@@ -57,6 +57,25 @@ class Gitty::Hook
     end
   end
 
+  def self.extract_meta_data(string_or_io)
+    io = string_or_io.respond_to?(:readline) ? string_or_io : StringIO.new(string_or_io)
+    meta_yaml = ""
+    begin
+      while line = io.readline
+        next unless line.match(/^# (description.+)/)
+        meta_yaml = "#{$1}\n"
+        break
+      end
+
+      while line = io.readline
+        break unless line.match(/^()$/) || line.match(/^# (.*?)$/)
+        meta_yaml << "#{$1}\n"
+      end
+    rescue EOFError
+    end
+    meta_yaml.empty? ? nil : YAML.load(meta_yaml)
+  end
+
   def installed?
     install_kind ? true : false
   end
@@ -78,7 +97,7 @@ class Gitty::Hook
   end
 
   def meta_data
-    @meta_data ||= Gitty.extract_meta_data(File.read(path))
+    @meta_data ||= self.class.extract_meta_data(File.read(path))
   end
 
   module AvailableHookStrategy

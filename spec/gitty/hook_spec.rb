@@ -23,6 +23,41 @@ EOF
 EOF
   end
 
+  describe ".extract_meta_data" do
+    it "extracts meta data from a stream" do
+      stream = <<-EOF
+#!/usr/bash
+
+# description: hi
+# targets: ["post-merge", "post-checkout"]
+#
+
+here's my hook
+EOF
+      Gitty::Hook.extract_meta_data(stream).should == {
+        "description" => "hi",
+        "targets" => ["post-merge", "post-checkout"]
+      }
+    end
+
+    it "returns nil when no data found" do
+      stream = <<-EOF
+#!/usr/bash
+#
+#
+EOF
+      Gitty::Hook.extract_meta_data(stream).should == nil
+    end
+
+    it "returns the data when there's no actual content" do
+      stream = <<-EOF
+#!/usr/bash
+#
+# description: hi
+EOF
+      Gitty::Hook.extract_meta_data(stream).should == {"description" => "hi"}
+    end
+  end
   describe ".find_all" do
     it "returns all available hooks" do
       Gitty::Hook.find_all(:installed => false).map(&:name).should == %w[no_messy_whitespace submodule_updater]
