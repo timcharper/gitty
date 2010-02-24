@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{gitty}
-  s.version = "0.2.1"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tim Harper"]
@@ -41,6 +41,7 @@ Gem::Specification.new do |s|
      "lib/gitty/commands/list.rb",
      "lib/gitty/commands/publish.rb",
      "lib/gitty/commands/shell.rb",
+     "lib/gitty/commands/show.rb",
      "lib/gitty/commands/uninstall.rb",
      "lib/gitty/helpers.rb",
      "lib/gitty/hook.rb",

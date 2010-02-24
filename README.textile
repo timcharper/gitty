@@ -14,6 +14,10 @@ Missing features:
 * Only receive hooks from trusted publishers. (currently when gitty is activated on a repository, any hook published to origin is automatically installed)
 * It's very young and might break
 
+h2. Documentation
+
+Read the cucumber features for an idea of how it works and what it does
+
 h2. Issues
 
 Report them here: http://github.com/timcharper/gitty/issues
