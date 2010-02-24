@@ -131,7 +131,7 @@ class Gitty::Hook
 
     def uninstall
       target_hook_path = path
-      base_directory = Pathname.new(path) + ".."
+      base_directory = self.class.installed_path(install_kind)
       meta_data["targets"].each { |target| rm_f(base_directory + "#{target}.d" + name) }
       rm(target_hook_path)
       # TODO - clean up helpers

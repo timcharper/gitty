@@ -128,12 +128,12 @@ EOF
     it "removes a hook from installed path" do
       hook = installed_hook("submodule_updater")
       File.exist?(".git/hooks/local/hooks/submodule_updater").should be_true
-      File.exist?(".git/hooks/local/post-checkout.d/submodule_updater").should be_true
-      File.exist?(".git/hooks/local/post-merge.d/submodule_updater").should be_true
+      File.symlink?(".git/hooks/local/post-checkout.d/submodule_updater").should be_true
+      File.symlink?(".git/hooks/local/post-merge.d/submodule_updater").should be_true
       hook.uninstall
       File.exist?(".git/hooks/local/hooks/submodule_updater").should be_false
-      File.exist?(".git/hooks/local/post-checkout.d/submodule_updater").should be_false
-      File.exist?(".git/hooks/local/post-merge.d/submodule_updater").should be_false
+      File.symlink?(".git/hooks/local/post-checkout.d/submodule_updater").should be_false
+      File.symlink?(".git/hooks/local/post-merge.d/submodule_updater").should be_false
     end
   end
 end

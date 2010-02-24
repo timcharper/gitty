@@ -74,7 +74,8 @@ end
 Then /^the following (files|folders) should not exist:$/ do |file_or_dir, table|
   in_current_dir do
     table.raw.map.each do |path|
-      File.exist?(path.first).should == false
+      File.exist?(path.first).should == false &&
+        File.symlink?(path.first).should == false
     end
   end
 end
