@@ -11,8 +11,6 @@ h2. Currently in alpha!
 
 Missing features:
 
-* List available hooks
-* List installed hooks
 * Only receive hooks from trusted publishers. (currently when gitty is activated on a repository, any hook published to origin is automatically installed)
 * It's very young and might break
 
