@@ -68,7 +68,7 @@ class Gitty::Hook
       end
 
       while line = io.readline
-        break unless line.match(/^()$/) || line.match(/^# (.*?)$/)
+        break unless line.match(/^#()$/) || line.match(/^# (.*?)$/)
         meta_yaml << "#{$1}\n"
       end
     rescue EOFError

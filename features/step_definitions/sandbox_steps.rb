@@ -49,6 +49,13 @@ When /^I run "(.+)"$/ do |command|
   run(command)
 end
 
+When /^I run:$/ do |command|
+  src_file = Tempfile.new('gitty_batch')
+  src_file.puts command
+  src_file.close
+  run("cat #{src_file.path} | bash")
+end
+
 Then /^the file "([^\"]*)" should include "([^\"]*)"$/ do |filename, content|
   in_current_dir do
     File.read(filename).should include(content)
@@ -102,4 +109,10 @@ end
 
 Then /^the last exit status should be (\d+)$/ do |code|
   @last_exit_status.should == code.to_i
+end
+
+Given /^the file "(.+)" contains:$/ do |filename, content|
+  filename.gsub!("$GITTY_ASSETS", ENV["GITTY_ASSETS"])
+  FileUtils.mkdir_p(File.dirname(filename))
+  File.open(filename, "wb") { |f| f << content }
 end

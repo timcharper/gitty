@@ -10,6 +10,7 @@
 #   - Otherwise, it checks out the revision for you
 # version: 0.1
 # targets: ["post-applypatch", "post-checkout", "post-merge"]
+# helpers: ["git-submodule-helper"]
 
 module GitMethods
   def chdir_parent
@@ -39,6 +40,7 @@ module GitMethods
   end
 end
 include GitMethods
+HELPERS = File.expand_path(ENV['HELPERS'], Dir.pwd)
 
 chdir_parent
 current_submodules = list_submodules('HEAD')
@@ -65,10 +67,12 @@ previous_submodules = list_submodules('HEAD@{1}')
   when rev != current_submodules[path]
     output_submodule_header(path)
     # it should be updated to the latest
-    # Fetch if it the change doesn't exist
     Dir.chdir(path) do
+      # Fetch if it the change doesn't exist
       system("(git show '#{current_submodules[path]}' 2> /dev/null 1> /dev/null) || git fetch")
       system("git checkout '#{current_submodules[path]}'")
+      system("echo", "#{HELPERS}/git-submodule-helper", "attach")
+      system("#{HELPERS}/git-submodule-helper", "attach")
     end
   end
 end

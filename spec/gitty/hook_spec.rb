@@ -28,14 +28,17 @@ EOF
       stream = <<-EOF
 #!/usr/bash
 
-# description: hi
+# description: |-
+#   hi
+#
+#   bye
 # targets: ["post-merge", "post-checkout"]
 #
 
 here's my hook
 EOF
       Gitty::Hook.extract_meta_data(stream).should == {
-        "description" => "hi",
+        "description" => "hi\n\nbye",
         "targets" => ["post-merge", "post-checkout"]
       }
     end
