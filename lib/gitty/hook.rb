@@ -47,7 +47,7 @@ class Gitty::Hook
     candidates
   end
 
-  def self.find(name, options)
+  def self.find(name, options = {})
     find_all(options.merge(:name => name)).first
   end
 

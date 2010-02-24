@@ -5,7 +5,6 @@ Feature:
 
   Background:
     Given I have a git repository initialized with gitty
-    And the remote "origin" points to a bare repository at "$REMOTES_PATH/remote.git"
     And the file "$GITTY_ASSETS/hooks/validation" contains:
       """
       #!/bin/bash

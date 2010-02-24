@@ -2,6 +2,7 @@ class Gitty::HookCommand < Gitty::Runner
   COMMANDS = %w[
     init
     list
+    show
     install
     uninstall
     publish
