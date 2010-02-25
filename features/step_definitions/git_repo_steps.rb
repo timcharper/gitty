@@ -28,7 +28,6 @@ When /^I clone "(.+)" as "(.+)"$/ do |source, path|
   in_dir(SandboxWorld::TMP_PATH.to_s) do
     run("git clone '#{source}' #{path}")
   end
-  @current_dir = SandboxWorld::TMP_PATH + path
 end
 
 

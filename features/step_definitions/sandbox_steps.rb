@@ -8,8 +8,8 @@ Before do
 end
 
 
-Given /^I am in the directory "(.*)"$/ do |path|
-  path = (SandboxWorld::SANDBOX_PATH + path).to_s
+When /^I switch to the directory "(.*)"$/ do |path|
+  path = (SandboxWorld::TMP_PATH + path).to_s
   FileUtils.mkdir_p(path)
   @current_dir = File.join(path)
 end

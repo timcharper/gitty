@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
-$: << File.dirname(__FILE__) + "/../lib/"
+$:.unshift(File.dirname(__FILE__) + "/../lib/")
 require "gitty"
 Gitty::HookCommand.new(ARGV).run

@@ -10,7 +10,7 @@ remote_branch=$(git show-ref origin/--hooks--)
   [ "${remote_branch%% *}" != "$local_rev" ] && (
     echo "Hook updates were applied:" 1>&2
     GIT_OBJECT_DIRECTORY=../../objects git branch origin/--hooks-- ${remote_branch%% *} -f 1>&2
-    GIT_OBJECT_DIRECTORY=../../objects git reset --hard ${remote_branch%% *} 1>&2
+    GIT_OBJECT_DIRECTORY=../../objects git merge ${remote_branch%% *} 1>&2
   )
 )
   
