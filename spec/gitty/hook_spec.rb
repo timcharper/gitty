@@ -134,6 +134,8 @@ EOF
       File.exist?(".git/hooks/local/hooks/submodule_updater").should be_false
       File.symlink?(".git/hooks/local/post-checkout.d/submodule_updater").should be_false
       File.symlink?(".git/hooks/local/post-merge.d/submodule_updater").should be_false
+      File.directory?(".git/hooks/local/post-checkout.d").should be_false
+      File.directory?(".git/hooks/local/post-merge.d").should be_false
     end
   end
 end
