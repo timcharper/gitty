@@ -17,6 +17,7 @@ remote_branch=$(git show-ref origin/--hooks--)
 for base_dir in "${dirname}"/{shared,local}; do
   [ -d "${base_dir}/${hooktype}.d" ] || continue
   for script in "${base_dir}/${hooktype}.d"/*; do
+    [ -x "$script" ] || continue
     HELPERS="${base_dir}/helpers" "${script}" "$*" || exit $?
   done
 done
