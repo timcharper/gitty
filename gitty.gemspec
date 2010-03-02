@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{gitty}
-  s.version = "0.3.3"
+  s.version = "0.3.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tim Harper"]
-  s.date = %q{2010-02-26}
+  s.date = %q{2010-03-02}
   s.default_executable = %q{git-hook}
   s.description = %q{Unobtrusively extend git}
   s.email = %q{timcharper@gmail.com}
