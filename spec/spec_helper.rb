@@ -18,8 +18,8 @@ Spec::Runner.configure do |config|
   end
 
   config.before(:each) do
-    reset_sandbox!
     @_original_dir = Dir.pwd
+    reset_sandbox!
     Dir.chdir(current_dir)
   end
 
