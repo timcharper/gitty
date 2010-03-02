@@ -135,7 +135,7 @@ class Gitty::Hook
       meta_data["targets"].each do |target|
         targetd_path = base_directory + "#{target}.d"
         rm_f(targetd_path + name)
-        FileUtils.rmdir(targetd_path) if Dir.glob(targetd_path + "*").empty?
+        FileUtils.rmdir(targetd_path) if Dir.glob((targetd_path + "*").to_s).empty?
       end
       rm(target_hook_path)
       # TODO - clean up helpers
