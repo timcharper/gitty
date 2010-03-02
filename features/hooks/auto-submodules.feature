@@ -7,8 +7,6 @@ Feature: auto submodules
     Given I have a git repository initialized with gitty
     And I run "git hook init"
     And I run "git hook install auto-submodules"
-  
-  Scenario: auto-update
     When I run:
     """
       (mkdir -p ../submodule.git && cd ../submodule.git && git init --bare)
@@ -30,6 +28,8 @@ Feature: auto submodules
     """
     Then the following files should exist:
       | .gitmodules |
+
+  Scenario: auto-update
     
     When I run:
     """
@@ -59,4 +59,24 @@ Feature: auto submodules
       git checkout super_project_next
     """
     Then the file ".git/HEAD" should include "ref: refs/heads/super_project_next"
+    Then the file "submod/.git/HEAD" should include "ref: refs/heads/submodule_next"
+
+  Scenario: rebasing should leave the submodule alone (until git post-rebase is available)
+    When I run:
+    """
+      git checkout -b super_project_next
+      cd submod
+        git checkout -b submodule_next
+        echo more README contents >> README
+        git commit -m 'more submodule README contents' -a
+      cd ..
+      git commit -m "bump submodule" -a
+
+      git checkout master
+      echo more changes >> README
+      git add README && git commit -m "more changes to readme"
+
+      git checkout super_project_next
+      git rebase master
+    """
     Then the file "submod/.git/HEAD" should include "ref: refs/heads/submodule_next"
