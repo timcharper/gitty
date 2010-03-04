@@ -14,7 +14,6 @@
 # this is a bit of a hack: when a rebase is ran, we don't want to have the initial checkout update submodules
 require 'fileutils'
 if ($0.include?("pre-rebase"))
-  `touch`
   FileUtils.touch(".git/queue-rebase-run")
   exit 0
 end
