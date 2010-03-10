@@ -8,7 +8,7 @@
 #   - If a submodule has been removed from the branch you move to, it alerts you
 #   - If a submodule has been added on the branch you move to, it alerts you
 #   - Otherwise, it checks out the revision for you
-# version: 0.1
+# version: 0.2
 # targets: ["pre-rebase", "post-applypatch", "post-checkout", "post-merge"]
 
 # this is a bit of a hack: when a rebase is ran, we don't want to have the initial checkout update submodules
@@ -83,17 +83,28 @@ previous_submodules = list_submodules('HEAD@{1}')
       system("(git show '#{current_submodules[path]}' 2> /dev/null 1> /dev/null) || git fetch")
 
       current_rev = current_submodules[path]
-      STDERR.puts("submodule is pointing to #{rev}")
       rev, ref_kind, ref = %x{git for-each-ref}.split("\n").map { |l| l.split(" ") }.detect {|l| l.first == current_rev }
 
       if ref.nil?
-        STDERR.puts "no known branch is currently at #{current_rev}, so we had to detach your HEAD."
-        STDERR.puts "here are some suggestions: "
-        system("git branch --contains #{current_rev} -a | egrep -v 'no branch|HEAD' 1>&2")
-        exit 1
+        system("git checkout -q #{current_rev}")
+        if $? == 0
+          STDERR.puts "Submodule HEAD was detached. The following branches contain the new HEAD:"
+          system("git branch --contains #{current_rev} -a | egrep -v 'no branch|HEAD' 1>&2")
+          exit 0
+        else
+          STDERR.puts "Couldn't update submodule."
+          exit $?
+        end
       end
       if ref.match(/^refs\/heads/)
-        exec("git checkout '#{File.basename(ref)}'")
+        system("git checkout -q '#{File.basename(ref)}'")
+        if $? == 0 
+          STDERR.puts "Checked out #{File.basename(ref)}"
+          exit 0 
+        else
+          STDERR.puts "Couldn't update submodule."
+          exit $?
+        end
       end
 
       if ref.match(/^refs\/remotes/) then
