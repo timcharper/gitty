@@ -7,6 +7,16 @@ remote_branch=$(git show-ref origin/--hooks--)
   [ "${remote_branch%% *}" != "$local_rev" ] && (
     echo "Hook updates were applied:" 1>&2
     GIT_OBJECT_DIRECTORY=../../objects git branch origin/--hooks-- ${remote_branch%% *} -f 1>&2
-    GIT_OBJECT_DIRECTORY=../../objects git merge ${remote_branch%% *} 1>&2
+    # This is a bit of a hack. If we're in the middle of commit, we need to borrow the index.  But don't worry, we'll put it back!
+    if [ -f ../../index.lock ]; then
+      mv ../../index.lock ../../index.lock_ 1>&2
+      mv ../../index ../../index_ 1>&2
+    fi
+    GIT_OBJECT_DIRECTORY=../../objects git reset HEAD 1>&2
+    GIT_OBJECT_DIRECTORY=../../objects git reset --hard origin/--hooks-- 1>&2
+    if [ -f ../../index.lock_ ]; then
+      mv ../../index.lock_ ../../index.lock 1>&2
+      mv ../../index_ ../../index 1>&2
+    fi
   )
 )
