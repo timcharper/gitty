@@ -138,4 +138,19 @@ EOF
       File.directory?(".git/hooks/local/post-merge.d").should be_false
     end
   end
+
+  describe "#share" do
+    it "copies the hook straight to shared when uninstalled" do
+      hook = Gitty::Hook.find("submodule_updater")
+      hook.share!
+      Gitty::Hook.find("submodule_updater", :install_kind => :shared).should_not be_nil
+    end
+
+    it "copies the hook to shared and uninstalls the :local copy" do
+      hook = installed_hook("submodule_updater")
+      hook.share!
+      Gitty::Hook.find("submodule_updater", :install_kind => :local).should be_nil
+      Gitty::Hook.find("submodule_updater", :install_kind => :shared).should_not be_nil
+    end
+  end
 end

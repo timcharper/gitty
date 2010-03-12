@@ -24,8 +24,9 @@ Feature:
       """
 
   Scenario: listing all hooks
-    When I run "git hook install --shared validation"
-    And I run "git hook install --local warning"
+    When I run "git hook install validation"
+    And I run "git hook share validation"
+    And I run "git hook install warning"
     And I run "git hook list"
     Then the output should contain
     """

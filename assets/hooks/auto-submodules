@@ -97,12 +97,12 @@ previous_submodules = list_submodules('HEAD@{1}')
         end
       end
       if ref.match(/^refs\/heads/)
-        system("git checkout -q '#{File.basename(ref)}'")
+        output = %x(git checkout '#{File.basename(ref)}' 2>&1)
         if $? == 0 
-          STDERR.puts "Checked out #{File.basename(ref)}"
+          STDERR.puts "Switched to branch #{File.basename(ref)}"
           exit 0 
         else
-          STDERR.puts "Couldn't update submodule."
+          STDERR.puts "Couldn't update submodule: #{output}"
           exit $?
         end
       end

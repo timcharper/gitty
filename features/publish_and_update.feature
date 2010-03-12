@@ -25,8 +25,9 @@ Feature: publishing hooks
       """
 
   Scenario: sharing hooks between repositories
-    When I run "git hook install --shared validation"
-    And I run "git hook publish -m 'added a validation hook to increase team morale'"
+    When I run "git hook install validation"
+    When I run "git hook share validation"
+    And I run "git hook publish validation -m 'added a validation hook to increase team morale'"
     Then the latest commit on origin/--hooks-- should contain "added a validation hook to increase team morale"
     
     When I clone "$REMOTES_PATH/remote.git" as "cloned"

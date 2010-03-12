@@ -100,27 +100,48 @@ class Gitty::Hook
     @meta_data ||= self.class.extract_meta_data(File.read(path))
   end
 
+protected
+  def copy_to(which = :local)
+    target_hook_path = existing_directory!(self.class.installed_hooks_path(which))
+    target_helper_path = existing_directory!(self.class.installed_helpers_path(which))
+    base_directory = self.class.installed_path(which)
+    cp(path, target_hook_path + name)
+    chmod(0755, target_hook_path + name)
+    meta_data["targets"].each do |target|
+      ln_sf(
+        "../hooks/#{name}",
+        file_with_existing_directory!(base_directory + "#{target}.d" + name)
+      )
+    end
+    (meta_data["helpers"] || []).each do |helper|
+      cp(Gitty.find_asset("helpers/#{helper}"), target_helper_path + helper)
+      chmod(0755, target_helper_path + helper)
+    end
+  end
+
+  def destroy
+    target_hook_path = path
+    base_directory = self.class.installed_path(install_kind)
+    meta_data["targets"].each do |target|
+      targetd_path = base_directory + "#{target}.d"
+      rm_f(targetd_path + name)
+      FileUtils.rmdir(targetd_path) if Dir.glob((targetd_path + "*").to_s).empty?
+    end
+    rm(target_hook_path)
+    # TODO - clean up helpers
+  end
+
   module AvailableHookStrategy
     def install(which = :local)
-      target_hook_path = existing_directory!(self.class.installed_hooks_path(which))
-      target_helper_path = existing_directory!(self.class.installed_helpers_path(which))
-      base_directory = self.class.installed_path(which)
-      cp(path, target_hook_path + name)
-      chmod(0755, target_hook_path + name)
-      meta_data["targets"].each do |target|
-        ln_sf(
-          "../hooks/#{name}",
-          file_with_existing_directory!(base_directory + "#{target}.d" + name)
-        )
-      end
-      (meta_data["helpers"] || []).each do |helper|
-        cp(Gitty.find_asset("helpers/#{helper}"), target_helper_path + helper)
-        chmod(0755, target_helper_path + helper)
-      end
+      copy_to(which)
     end
 
     def uninstall
       # do nothing
+    end
+
+    def share!
+      copy_to(:shared)
     end
   end
 
@@ -130,15 +151,13 @@ class Gitty::Hook
     end
 
     def uninstall
-      target_hook_path = path
-      base_directory = self.class.installed_path(install_kind)
-      meta_data["targets"].each do |target|
-        targetd_path = base_directory + "#{target}.d"
-        rm_f(targetd_path + name)
-        FileUtils.rmdir(targetd_path) if Dir.glob((targetd_path + "*").to_s).empty?
-      end
-      rm(target_hook_path)
-      # TODO - clean up helpers
+      destroy
+    end
+
+    def share!
+      return nil if install_kind == :shared
+      copy_to(:shared)
+      destroy
     end
   end
 

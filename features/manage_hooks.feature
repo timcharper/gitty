@@ -23,7 +23,7 @@ Feature: managing hooks
       echo "That is the greatest code I've ever seen written! You're amazing!"
       """
   Scenario: adding and removing a local hook
-    When I run "git hook install --local validation"
+    When I run "git hook install validation"
     Then the following files should exist:
       | .git/hooks/local/hooks/validation         |
       | .git/hooks/local/post-commit.d/validation |
@@ -32,10 +32,10 @@ Feature: managing hooks
     When I run "git hook uninstall validation"
     Then the following files should not exist:
       | .git/hooks/local/post-commit.d/validation |
-#      | .git/hooks/local/helpers/validator | - git hook cleanup type approach... TODO
 
   Scenario: adding and removing a shared hook
-    When I run "git hook install --shared validation"
+    When I run "git hook install validation"
+    When I run "git hook share validation"
     Then the following files should exist:
       | .git/hooks/shared/post-commit.d/validation |
       | .git/hooks/shared/hooks/validation         |
@@ -46,6 +46,14 @@ Feature: managing hooks
     Then the following files should not exist:
       | .git/hooks/shared/post-commit.d/validation |
       | .git/hooks/shared/hooks/validation         |
+    And the output should contain "To propagate this change other developers, run 'git hook publish"
+
+  Scenario: adding a shared hook directly
+    When I run "git hook share validation"
+    Then the following files should exist:
+      | .git/hooks/shared/post-commit.d/validation |
+      | .git/hooks/shared/hooks/validation         |
+      | .git/hooks/shared/helpers/validator        |
     And the output should contain "To propagate this change other developers, run 'git hook publish"
 
   Scenario: adding a hook that doesn't exist
