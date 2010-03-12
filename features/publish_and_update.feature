@@ -24,17 +24,38 @@ Feature: publishing hooks
       echo "That is the greatest code I've ever seen written! You're amazing!"
       """
 
+  Scenario: sharing hooks between repositories is disabled by default
+    When I run:
+      """
+        git hook share validation
+        git hook publish -m 'added a validation hook to increase team morale'
+      """
+    Then the error output should contain "WARNING: sharing is disabled on your repository.  Run git hook init --enable-sharing to turn it on."
+    Then the latest commit on origin/--hooks-- should contain "added a validation hook to increase team morale"
+    And I switch to the directory "cloned"
+    When I run:
+    """
+      git hook init --enable-sharing
+      echo content > README
+      git add README
+      git commit -m 'added a readme'
+    """
+    Then the error output should not contain "That is the greatest code I've ever seen written! You're amazing!"
+
   Scenario: sharing hooks between repositories
-    When I run "git hook install validation"
-    When I run "git hook share validation"
-    And I run "git hook publish validation -m 'added a validation hook to increase team morale'"
+    When I run:
+      """
+        git hook init --enable-sharing
+        git hook share validation
+        git hook publish -m 'added a validation hook to increase team morale'
+      """
     Then the latest commit on origin/--hooks-- should contain "added a validation hook to increase team morale"
     
     When I clone "$REMOTES_PATH/remote.git" as "cloned"
     And I switch to the directory "cloned"
     When I run:
     """
-      git hook init
+      git hook init --enable-sharing
       echo content > README
       git add README
       git commit -m 'added a readme'

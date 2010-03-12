@@ -1,0 +1,12 @@
+#!/bin/bash
+# Check for updates.  Since there is no post-fetch hook, we check before we're about to run a hook.
+remote_branch=$(git show-ref origin/--hooks--)
+[ -n "$remote_branch" ] && (
+  cd ${dirname}/shared > /dev/null
+  local_rev=$(GIT_OBJECT_DIRECTORY="../../objects" git rev-parse HEAD)
+  [ "${remote_branch%% *}" != "$local_rev" ] && (
+    echo "Hook updates were applied:" 1>&2
+    GIT_OBJECT_DIRECTORY=../../objects git branch origin/--hooks-- ${remote_branch%% *} -f 1>&2
+    GIT_OBJECT_DIRECTORY=../../objects git merge ${remote_branch%% *} 1>&2
+  )
+)

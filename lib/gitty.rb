@@ -26,6 +26,10 @@ module Gitty
     end
     nil
   end
+
+  def self.sharing_enabled?
+    File.exist?(".git/hooks/gitty/update-shared-hooks")
+  end
 end
 
 require "gitty/runner.rb"

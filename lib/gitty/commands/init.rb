@@ -1,6 +1,7 @@
 require 'fileutils'
 class Gitty::HookCommand::Init < Gitty::Runner
   include ::Gitty::Helpers
+  include FileUtils
   
   CLIENT_HOOKS = %w[
     applypatch-msg
@@ -17,16 +18,23 @@ class Gitty::HookCommand::Init < Gitty::Runner
   ]
   def run
     puts "Initializing with gitty"
-    FileUtils.mkdir_p(".git/hooks/shared")
-    FileUtils.mkdir_p(".git/hooks/local")
+    # MESSY!
+    mkdir_p(".git/hooks/gitty")
+    mkdir_p(".git/hooks/shared")
+    mkdir_p(".git/hooks/local")
+    cp((ASSETS_PATH + "helpers/hookd_wrapper").to_s, ".git/hooks/gitty/hookd_wrapper")
+    chmod(0755, ".git/hooks/gitty/hookd_wrapper")
+    if options[:sharing]
+      cp((ASSETS_PATH + "helpers/update-shared-hooks").to_s, ".git/hooks/gitty/update-shared-hooks")
+      chmod(0755, ".git/hooks/gitty/update-shared-hooks")
+    end
 
     CLIENT_HOOKS.each do |hook|
       if File.exist?(".git/hooks/#{hook}")
-        FileUtils.mkdir_p(".git/hooks/local/#{hook}.d")
-        FileUtils.mv(".git/hooks/#{hook}", ".git/hooks/local/#{hook}.d/original")
+        mkdir_p(".git/hooks/local/#{hook}.d")
+        mv(".git/hooks/#{hook}", ".git/hooks/local/#{hook}.d/original")
       end
-      FileUtils.cp((ASSETS_PATH + "helpers/hookd_wrapper").to_s, ".git/hooks/#{hook}")
-      FileUtils.chmod(0755, ".git/hooks/#{hook}")
+      ln_sf("gitty/hookd_wrapper", ".git/hooks/#{hook}")
     end
     
     hooks_rev = remote_hooks_rev
@@ -47,6 +55,9 @@ class Gitty::HookCommand::Init < Gitty::Runner
   def option_parser
     super.tap do |opts|
       opts.banner = "Usage: git hook init"
+      opts.on("-s", "--enable-sharing", "Enable sharing") do
+        options[:sharing] = true
+      end
     end
   end
   
