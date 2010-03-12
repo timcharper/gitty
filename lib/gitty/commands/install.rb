@@ -12,6 +12,7 @@ class Gitty::HookCommand::Install < Gitty::Runner
       exit 1
     end
     hook.install(:local)
+    stdout.puts "#hook #{hook.name} has been installed."
   end
 
   def option_parser
