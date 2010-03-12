@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{gitty}
-  s.version = "0.3.7"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tim Harper"]
-  s.date = %q{2010-03-10}
+  s.date = %q{2010-03-12}
   s.default_executable = %q{git-hook}
   s.description = %q{Unobtrusively extend git}
   s.email = %q{timcharper@gmail.com}
@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
      "assets/helpers/git-trash",
      "assets/helpers/git-when-introduced",
      "assets/helpers/hookd_wrapper",
+     "assets/helpers/update-shared-hooks",
      "assets/hooks/auto-submodules",
      "assets/hooks/clean-patches",
      "assets/hooks/git-prevent-messy-rebase",
@@ -40,6 +41,7 @@ Gem::Specification.new do |s|
      "lib/gitty/commands/install.rb",
      "lib/gitty/commands/list.rb",
      "lib/gitty/commands/publish.rb",
+     "lib/gitty/commands/share.rb",
      "lib/gitty/commands/shell.rb",
      "lib/gitty/commands/show.rb",
      "lib/gitty/commands/uninstall.rb",
