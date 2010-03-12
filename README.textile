@@ -13,8 +13,48 @@ Missing features:
 
 * Only receive hooks from trusted publishers. (currently when gitty is activated on a repository, any hook published to origin is automatically installed)
 * It's very young and might break
+* Remote repository must be named origin for shared hooks to work.  This is currently not configurable.
 
 h2. Documentation
+
+h3. Initialization
+
+To use gitty with a git repository, you need to install the basic gitty hooks.
+
+<pre>
+git hook init
+</pre>
+
+* Any existing hooks will be preserved. They are moved to .git/hooks/local/<hook-name>.d/original
+
+h3. Enabling sharing
+
+By default, it's turned off (security reasons). To enable it:
+
+<pre>
+git hook init --enable-sharing
+</pre>
+
+h3. Adding hooks
+
+To see available hooks:
+
+<pre>
+git hook list
+</pre>
+
+To install one:
+
+<pre>
+git hook install <hook-name>
+</pre>
+
+To share one:
+
+<pre>
+git hook share <hook-name>
+git hook publish -m "added <hook-name>"
+</pre>
 
 Read the cucumber features for an idea of how it works and what it does
 
