@@ -23,6 +23,7 @@ if File.exist?(".git/queue-rebase-run")
   exit 0
 end
 
+# Not pretty... but well tested!!  Refactor me.
 module GitMethods
   def chdir_parent
     Dir.chdir('..') until File.directory?('.git') || Dir.pwd == '/'
@@ -114,7 +115,11 @@ previous_submodules = list_submodules('HEAD@{1}')
         divergent_commits=%x{git rev-list #{ref}..#{local_ref}}.strip
         if divergent_commits.empty?
           STDERR.puts "fastforwarding #{local_ref} to #{ref}"
-          system("git branch -f #{local_ref} #{ref}")
+          if File.read(".git/HEAD").include?("ref: refs/heads/#{local_ref}")
+            system("git merge #{ref}")
+          else
+            system("git branch -f #{local_ref} #{ref}")
+          end
           exec("git checkout #{local_ref}")
         end
       end

@@ -62,6 +62,12 @@ Then /^the file "([^\"]*)" should include "([^\"]*)"$/ do |filename, content|
   end
 end
 
+Then /^the file "([^\"]*)" should not include "([^\"]*)"$/ do |filename, content|
+  in_current_dir do
+    File.read(filename).should_not include(content)
+  end
+end
+
 Then /^the following (files|folders) should exist:$/ do |file_or_dir, table|
   in_current_dir do
     table.raw.map { |r| r.first}.each do |path|

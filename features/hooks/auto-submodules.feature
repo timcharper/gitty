@@ -80,3 +80,24 @@ Feature: auto submodules
       git rebase master
     """
     Then the file "submod/.git/HEAD" should include "ref: refs/heads/submodule_next"
+
+  Scenario: fastforwarding when the branch is already checked out
+    When I run:
+    """
+      git checkout -b super_project_next
+      cd submod
+        echo submodule_next > README
+        git commit -m 'set README to next' -a
+        git push
+      cd ..
+      git commit -m "bump submodule" -a
+      cd submod
+        git reset --hard HEAD^
+      cd ..
+
+      git checkout master
+    """
+    Then the file "submod/README" should not include "submodule_next"
+    When I run "git checkout super_project_next"
+    Then the file "submod/README" should include "submodule_next"
+    Then the file "submod/.git/HEAD" should include "ref: refs/heads/master"
