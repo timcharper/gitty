@@ -21,6 +21,10 @@ class Gitty::HookCommand::Init < Gitty::Runner
     FileUtils.mkdir_p(".git/hooks/local")
 
     CLIENT_HOOKS.each do |hook|
+      if File.exist?(".git/hooks/#{hook}")
+        FileUtils.mkdir_p(".git/hooks/local/#{hook}.d")
+        FileUtils.mv(".git/hooks/#{hook}", ".git/hooks/local/#{hook}.d/original")
+      end
       FileUtils.cp((ASSETS_PATH + "helpers/hookd_wrapper").to_s, ".git/hooks/#{hook}")
       FileUtils.chmod(0755, ".git/hooks/#{hook}")
     end

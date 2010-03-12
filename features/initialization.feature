@@ -23,3 +23,13 @@ Feature: Initialization
     | post-checkout      |
     | post-merge         |
     | pre-auto-gc        |
+
+  Scenario: initialization in a repo that already has hooks
+    Given I have a git repository with some commits
+    And the file ".git/hooks/post-commit" contains:
+      """
+      echo "You are awesome"
+      """
+    When I run "git hook init"
+    Then the following folders should exist:
+    | .git/hooks/local/post-commit.d/original |
