@@ -10,7 +10,7 @@ begin
     gem.email = "timcharper@gmail.com"
     gem.homepage = "http://github.com/timcharper/gitty"
     gem.authors = ["Tim Harper"]
-    gem.files = Dir['lib/**/*.rb'] + Dir['assets/**/*'] + Dir['bin/*'] + Dir['cucumber/**/*'] + Dir['spec/**/*'] + %w[cucumber.yml Rakefile README.textile LICENSE]
+    gem.files = Dir['lib/**/*.rb'] + Dir['assets/**/*'] + ['bin/git-hook'] + Dir['cucumber/**/*'] + Dir['spec/**/*'] + %w[cucumber.yml Rakefile README.textile LICENSE]
     # gem.executables << 'git-hook'/
   end
   Jeweler::GemcutterTasks.new
