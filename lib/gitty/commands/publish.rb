@@ -29,6 +29,8 @@ class Gitty::HookCommand::Publish < Gitty::Runner
       super
       if options[:message].nil?
         puts option_parser
+        puts "A message is required"
+        exit 1
       end
     end
 end
