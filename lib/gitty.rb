@@ -9,8 +9,7 @@ $: << GITTY_LIB_PATH.to_s
 require 'fileutils'
 require 'stringio'
 require 'yaml'
-require "string.rb"
-require "ext.rb"
+require "gitty/ext"
 
 module Gitty
   autoload :Helpers, (GITTY_PATH + "helpers.rb").to_s
