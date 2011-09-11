@@ -15,5 +15,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = "1.3.7"
   s.summary = 'Unobtrusively extend git'
   s.test_files = Dir['spec/**/*.rb']
+
+  s.add_development_dependency "rspec", "~> 2.6"
 end
 

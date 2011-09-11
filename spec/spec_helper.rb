@@ -1,13 +1,13 @@
 require File.dirname(__FILE__) + "/../lib/gitty"
 require 'rubygems'
-require "spec"
+require "rspec"
 SPEC_PATH = Pathname.new(File.dirname(__FILE__))
 require SPEC_PATH + "../features/support/sandbox_world.rb"
 require SPEC_PATH + "support/constants.rb"
 
 
 require 'forwardable'
-Spec::Runner.configure do |config|
+RSpec.configure do |config|
   extend Forwardable
   def sandbox
     @sandbox ||= SandboxWorld.new
