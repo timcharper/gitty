@@ -17,6 +17,12 @@ Missing features:
 
 h2. Documentation
 
+h3. Installation
+
+<pre>
+gem install gitty
+</pre>
+
 h3. Initialization
 
 To use gitty with a git repository, you need to install the basic gitty hooks.
